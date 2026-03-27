@@ -4,7 +4,6 @@ import { useFavorites } from "../context/FavoritesContext";
 import CommentList from "./CommentList";
 
 function PostCard({ post }) {
-  // ดึงข้อมูลจาก Context แทนการรับ Props
   const { favorites, toggleFavorite } = useFavorites();
   const isFavorite = favorites.includes(post.id);
   const [showComments, setShowComments] = useState(false);
@@ -20,27 +19,18 @@ function PostCard({ post }) {
       }}
     >
       <h3 style={{ margin: "0 0 0.5rem" }}>
-        {/* เพิ่ม Link ไปยังหน้ารายละเอียดของโพสต์ */}
         <Link
           to={`/posts/${post.id}`}
-          style={{ 
-            color: "#1e40af", 
-            textDecoration: "none",
-            cursor: "pointer" 
-          }}
-          onMouseOver={(e) => (e.target.style.textDecoration = "underline")}
-          onMouseOut={(e) => (e.target.style.textDecoration = "none")}
+          style={{ color: "#1e40af", textDecoration: "none" }}
         >
           {post.title}
         </Link>
       </h3>
-      
       <p style={{ margin: "0 0 0.75rem", color: "#4a5568", lineHeight: 1.6 }}>
         {post.body}
       </p>
 
       <div style={{ display: "flex", gap: "0.5rem" }}>
-        {/* ปุ่มถูกใจที่ใช้งานร่วมกับ Context */}
         <button
           onClick={() => toggleFavorite(post.id)}
           style={{
@@ -54,7 +44,6 @@ function PostCard({ post }) {
           {isFavorite ? "❤️" : "🤍"}
         </button>
 
-        {/* ปุ่มเปิด-ปิด ความคิดเห็น */}
         <button
           onClick={() => setShowComments((prev) => !prev)}
           style={{
@@ -71,7 +60,6 @@ function PostCard({ post }) {
         </button>
       </div>
 
-      {/* Conditional Rendering สำหรับ CommentList */}
       {showComments && <CommentList postId={post.id} />}
     </div>
   );

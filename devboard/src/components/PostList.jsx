@@ -1,15 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PostCard from "./PostCard";
+import LoadingSpinner from "./LoadingSpinner";
 
-function PostList({ posts, favorites, onToggleFavorite }) {
-  // 1. สร้าง State สำหรับเก็บค่าที่พิมพ์ในช่องค้นหา
+function PostList({ favorites, onToggleFavorite }) {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
 
-  // 2. Logic การกรองโพสต์: กรองเฉพาะโพสต์ที่ชื่อ (title) ตรงกับคำค้นหา
-  // ใช้ .toLowerCase() เพื่อให้ค้นหาได้โดยไม่เกี่ยงตัวพิมพ์เล็ก-ใหญ่
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+        if (!res.ok) throw new Error("ดึงข้อมูลไม่สำเร็จ");
+        const data = await res.json();
+        setPosts(data.slice(0, 20)); // เอาแค่ 20 รายการแรก
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, []); // [] = ทำครั้งเดียวตอน component mount
+
   const filtered = posts.filter((post) =>
-    post.title.toLowerCase().includes(search.toLowerCase())
+    post.title.toLowerCase().includes(search.toLowerCase()),
   );
+
+  if (loading) return <LoadingSpinner />;
+
+  if (error)
+    return (
+      <div
+        style={{
+          padding: "1.5rem",
+          background: "#fff5f5",
+          border: "1px solid #fc8181",
+          borderRadius: "8px",
+          color: "#c53030",
+        }}
+      >
+        เกิดข้อผิดพลาด: {error}
+      </div>
+    );
 
   return (
     <div>
@@ -23,7 +59,6 @@ function PostList({ posts, favorites, onToggleFavorite }) {
         โพสต์ล่าสุด
       </h2>
 
-      {/* 3. ส่วน Input สำหรับค้นหา */}
       <input
         type="text"
         placeholder="ค้นหาโพสต์..."
@@ -40,22 +75,17 @@ function PostList({ posts, favorites, onToggleFavorite }) {
         }}
       />
 
-      {/* 4. แสดงข้อความเมื่อค้นหาไม่พบ (Conditional Rendering) */}
       {filtered.length === 0 && (
         <p style={{ color: "#718096", textAlign: "center", padding: "2rem" }}>
           ไม่พบโพสต์ที่ค้นหา
         </p>
       )}
 
-      {/* 5. Loop แสดงรายการโพสต์ที่ผ่านการกรองแล้ว */}
       {filtered.map((post) => (
         <PostCard
           key={post.id}
-          title={post.title}
-          body={post.body}
-          // ส่งสถานะว่าเป็น Favorite หรือไม่ โดยเช็คจาก Array favorites
+          post={post}
           isFavorite={favorites.includes(post.id)}
-          // ส่ง Function กลับไปที่ App.jsx เมื่อมีการกดปุ่ม Favorite
           onToggleFavorite={() => onToggleFavorite(post.id)}
         />
       ))}

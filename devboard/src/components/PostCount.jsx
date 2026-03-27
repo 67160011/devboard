@@ -13,5 +13,5 @@ function PostCount({ count }) {
     </div>
   );
 }
-
+// task#1 1ดาว แสดงจำนวนโพสต์ทั้งหมดที่มี import ไปในpostlistด้วย
 export default PostCount;

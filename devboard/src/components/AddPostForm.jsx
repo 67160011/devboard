@@ -44,6 +44,17 @@ function AddPostForm({ onAddPost }) {
         }}
       />
 
+      <div style={{
+        // task2 1 ดาว ถ้าเกิน90ตัวจะเป็นสีแดง
+        textAlign: "right",
+        fontSize: "0.85rem",
+        marginTop: "-0.25rem", 
+        marginBottom: "0.5rem",
+        color: title.length > 90 ? "#e53e3e" : "#718096", 
+        fontWeight: title.length > 90 ? "bold" : "normal"
+      }}>
+        {title.length} / 100
+      </div>
       <textarea
         placeholder="เนื้อหาโพสต์"
         value={body}

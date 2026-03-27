@@ -1,7 +1,12 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useFavorites } from "../context/FavoritesContext";
 import CommentList from "./CommentList";
 
-function PostCard({ post, isFavorite, onToggleFavorite }) {
+function PostCard({ post }) {
+  // ดึงข้อมูลจาก Context แทนการรับ Props
+  const { favorites, toggleFavorite } = useFavorites();
+  const isFavorite = favorites.includes(post.id);
   const [showComments, setShowComments] = useState(false);
 
   return (
@@ -14,29 +19,42 @@ function PostCard({ post, isFavorite, onToggleFavorite }) {
         background: "white",
       }}
     >
-      <h3 style={{ margin: "0 0 0.5rem", color: "#1e40af" }}>{post.title}</h3>
+      <h3 style={{ margin: "0 0 0.5rem" }}>
+        {/* เพิ่ม Link ไปยังหน้ารายละเอียดของโพสต์ */}
+        <Link
+          to={`/posts/${post.id}`}
+          style={{ 
+            color: "#1e40af", 
+            textDecoration: "none",
+            cursor: "pointer" 
+          }}
+          onMouseOver={(e) => (e.target.style.textDecoration = "underline")}
+          onMouseOut={(e) => (e.target.style.textDecoration = "none")}
+        >
+          {post.title}
+        </Link>
+      </h3>
+      
       <p style={{ margin: "0 0 0.75rem", color: "#4a5568", lineHeight: 1.6 }}>
         {post.body}
       </p>
 
       <div style={{ display: "flex", gap: "0.5rem" }}>
-        {/* ปุ่มถูกใจ */}
+        {/* ปุ่มถูกใจที่ใช้งานร่วมกับ Context */}
         <button
-          onClick={onToggleFavorite}
+          onClick={() => toggleFavorite(post.id)}
           style={{
             background: "none",
             border: "none",
             cursor: "pointer",
             fontSize: "1rem",
-            padding: "0.25rem 0.5rem",
-            borderRadius: "4px",
             color: isFavorite ? "#e53e3e" : "#a0aec0",
           }}
         >
-          {isFavorite ? "❤️ ถูกใจแล้ว" : "🤍 ถูกใจ"}
+          {isFavorite ? "❤️" : "🤍"}
         </button>
 
-        {/* ปุ่มดูความคิดเห็น */}
+        {/* ปุ่มเปิด-ปิด ความคิดเห็น */}
         <button
           onClick={() => setShowComments((prev) => !prev)}
           style={{
@@ -49,11 +67,11 @@ function PostCard({ post, isFavorite, onToggleFavorite }) {
             color: "#4a5568",
           }}
         >
-          {showComments ? "▲ ซ่อน" : "▼ ดูความคิดเห็น"}
+          {showComments ? "▲ ซ่อน" : "▼ ความคิดเห็น"}
         </button>
       </div>
 
-      {/* แสดง comments เมื่อกด — fetch จะเกิดขึ้นเฉพาะตอนที่ showComments เป็น true เท่านั้น */}
+      {/* Conditional Rendering สำหรับ CommentList */}
       {showComments && <CommentList postId={post.id} />}
     </div>
   );
